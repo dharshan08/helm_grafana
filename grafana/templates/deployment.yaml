@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          value: "admin"
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin"
+        - name: DOCKER_INFLUXDB_INIT_ORG
+          value: "iosmcn"
+        - name: DOCKER_INFLUXDB_INIT_BUCKET
+          value: "pm-logg-bucket"
+        - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+          value: "qp7BoN2JdcCWkb5UQPcnlYNO7HW5gXIxichHRNH49gg7gq8vs0QD1lGU80wfQyAIwROxtUjcJLxj0xGRaWgrDA=="
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
+        - name: grafana-dashboards
+          mountPath: /etc/grafana/provisioning/dashboards
+      volumes:
+      - name: grafana-storage
+        persistentVolumeClaim:
+          claimName: grafana-data-pvc
+      - name: grafana-dashboards
+        configMap:
+          name: grafana-dashboards
+
